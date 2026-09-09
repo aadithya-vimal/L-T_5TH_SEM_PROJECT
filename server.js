@@ -1,0 +1,10 @@
+const express=require('express');const cors=require('cors');const helmet=require('helmet');const compression=require('compression');const morgan=require('morgan');const rateLimit=require('express-rate-limit');const path=require('path');const {connectDB}=require('./config/db');const {port}=require('./config/env');const errorHandler=require('./middleware/errorHandler');const notFound=require('./middleware/notFound');const asyncHandler=require('./utils/asyncHandler');const mongoose=require('mongoose');
+const app=express();
+app.use(helmet({contentSecurityPolicy:false}));app.use(cors());app.use(compression());app.use(express.json({limit:'1mb'}));app.use(express.urlencoded({extended:true}));app.use(morgan('dev'));app.use('/api/auth',rateLimit({windowMs:15*60*1000,max:100,standardHeaders:true,legacyHeaders:false}));
+app.use(express.static(path.join(__dirname,'public')));
+app.get('/api/health',(req,res)=>res.json({success:true,message:'Digital Banking API is running',data:{database:mongoose.connection.readyState===1?'connected':'disconnected',time:new Date().toISOString()}}));
+app.use('/api/auth',require('./routes/authRoutes'));app.use('/api/users',require('./routes/userRoutes'));app.use('/api/accounts',require('./routes/accountRoutes'));app.use('/api/transactions',require('./routes/transactionRoutes'));app.use('/api/beneficiaries',require('./routes/beneficiaryRoutes'));app.use('/api/cards',require('./routes/cardRoutes'));app.use('/api/notifications',require('./routes/notificationRoutes'));app.use('/api/support',require('./routes/supportRoutes'));app.use('/api/bill-payments',require('./routes/billPaymentRoutes'));app.use('/api/admin',require('./routes/adminRoutes'));
+app.get('/api/docs',(req,res)=>res.json({success:true,message:'API documentation is available in postman/Digital-Banking.postman_collection.json',data:null}));
+app.use(notFound);app.use(errorHandler);
+if(require.main===module){connectDB().then(()=>app.listen(port,()=>console.log(`\n  Digital Banking API\n  http://localhost:${port}\n  http://localhost:${port}/dashboard.html\n`))).catch(err=>{console.error('Startup failed:',err.message);process.exit(1);});}
+module.exports=app;

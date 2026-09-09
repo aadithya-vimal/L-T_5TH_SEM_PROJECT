@@ -1,0 +1,1 @@
+const router=require('express').Router();const c=require('../controllers/profileController');const asyncHandler=require('../utils/asyncHandler');const auth=require('../middleware/auth');router.use(auth);router.get('/profile',asyncHandler(c.get));router.put('/profile',asyncHandler(c.update));module.exports=router;

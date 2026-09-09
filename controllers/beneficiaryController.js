@@ -1,0 +1,6 @@
+const Beneficiary=require('../models/Beneficiary');const ApiError=require('../utils/ApiError');
+exports.create=async(req,res)=>{const b=await Beneficiary.create({...req.body,userId:req.user._id,isVerified:true});res.status(201).json({success:true,message:'Beneficiary added',data:b});};
+exports.list=async(req,res)=>res.json({success:true,message:'Beneficiaries loaded',data:await Beneficiary.find({userId:req.user._id}).sort({createdAt:-1})});
+exports.get=async(req,res)=>{const b=await Beneficiary.findOne({_id:req.params.id,userId:req.user._id});if(!b)throw new ApiError(404,'Beneficiary not found','NOT_FOUND');res.json({success:true,message:'Beneficiary loaded',data:b});};
+exports.update=async(req,res)=>{const b=await Beneficiary.findOneAndUpdate({_id:req.params.id,userId:req.user._id},req.body,{new:true,runValidators:true});if(!b)throw new ApiError(404,'Beneficiary not found','NOT_FOUND');res.json({success:true,message:'Beneficiary updated',data:b});};
+exports.remove=async(req,res)=>{const b=await Beneficiary.findOneAndUpdate({_id:req.params.id,userId:req.user._id},{isActive:false},{new:true});if(!b)throw new ApiError(404,'Beneficiary not found','NOT_FOUND');res.json({success:true,message:'Beneficiary deactivated',data:b});};

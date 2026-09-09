@@ -1,0 +1,2 @@
+const router=require('express').Router();const c=require('../controllers/authController');const asyncHandler=require('../utils/asyncHandler');const v=require('../validators');const auth=require('../middleware/auth');
+router.post('/register',v.authRegister,require('../middleware/validate'),asyncHandler(c.register));router.post('/login',v.authLogin,require('../middleware/validate'),asyncHandler(c.login));router.post('/logout',auth,asyncHandler(c.logout));router.get('/me',auth,asyncHandler(c.me));module.exports=router;
